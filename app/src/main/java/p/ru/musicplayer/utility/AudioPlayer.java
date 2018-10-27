@@ -7,7 +7,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Parcel;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import java.io.IOException;
@@ -27,6 +26,10 @@ public class AudioPlayer {
 
     public AudioPlayer(){
         song_list = new ArrayList<>();
+        if(player != null){
+            player.release();
+            player = null;
+        }
         player = new MediaPlayer();
         song = new Song();
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -47,29 +50,10 @@ public class AudioPlayer {
         this.song_list = song_list;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     public void setPlayer(MediaPlayer player) {
         this.player = player;
     }
 
-    public void setSong_list(ArrayList<String> song_list) {
-        this.song_list = song_list;
-    }
-
-    public ArrayList<String> getSong_list() {
-        return song_list;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public MediaPlayer getPlayer() {
-        return player;
-    }
 
     /**
      * get path to path from ArrayList
@@ -85,6 +69,10 @@ public class AudioPlayer {
 
     public void set_path(String path){
         this.path = path;
+    }
+
+    public void set_song(Song song){
+        this.song = song;
     }
 
     public void set_song_list(ArrayList list){
@@ -116,11 +104,13 @@ public class AudioPlayer {
     public void setAudioAttributes(AudioAttributes attributes){}
     public void setLooping(boolean looping){}
     public void setVolume(float x1, float x2){}
+
     public void pause(){
         if(player != null){
             player.pause();
         }else Log.e("pause", "player is null");
     }
+
     public void start(){
         if(player != null){
             Log.d("media_player_state", "State : " + player.isPlaying());
@@ -128,11 +118,13 @@ public class AudioPlayer {
             Log.d("media_player_state", "State : " + player.isPlaying());
         }else Log.e("start", "player is null");
     }
+
     public void stop(){
         if(player != null){
             player.stop();
         }else Log.e("stop", "player is null");
     }
+
     public  void release(){
         player.release();
     }
@@ -144,6 +136,7 @@ public class AudioPlayer {
             player.seekTo(msec, mode);
         }else Log.e("seekTo", "player is null");
     }
+
     public void prepare(){
         if(player != null){
             try{
@@ -154,6 +147,7 @@ public class AudioPlayer {
             }
         }else Log.e("pause", "player is null");
     }
+
     public void  prepareAsync(){
         if(player != null){
             try{
@@ -180,6 +174,12 @@ public class AudioPlayer {
 
     public void setDataSource(){
         load();
+    }
+
+    public void seek_to(int time){
+        if(player != null && time < song.getDuration()){
+            player.seekTo(time * 1000);
+        }
     }
 
 

@@ -34,7 +34,6 @@ import java.nio.file.Paths
 class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private var song_list : ArrayList<DataSongView> = ArrayList()
-    public var audio_player : AudioPlayer = AudioPlayer()
     private  var adapter : SongAdapter = SongAdapter(this, song_list)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,14 +52,16 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         var tryui = findViewById<RecyclerView>(R.id.song_list__recycler_view)
         tryui.layoutManager = m_layout_manager
         tryui.addItemDecoration(GridSpacingItemDecoration(2, dpToPx(10), true))
-        tryui.itemAnimator = DefaultItemAnimator()!!
+        tryui.itemAnimator = DefaultItemAnimator()
         tryui.adapter = adapter
         var liss = list_all_mp3()
         prepare_data(liss)
-        var lis : ArrayList<String>;
+        var lis : ArrayList<String>
+
+
         findViewById<ImageView>(R.id.search_button_home).setOnClickListener{
-            var query = findViewById<EditText>(R.id.search_bar_home).toString()
-            lis = Searcher.search_in_list(liss, query.trim() )
+            var query = findViewById<EditText>(R.id.search_bar_home).text.toString()
+            lis = Searcher.search_in_list(liss, query.trim())
             Log.d("search_list","--> " + lis.toString())
             song_list.clear()
             prepare_data(lis)
@@ -72,6 +73,7 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
                 var song = song_list.get(position)
                 Log.w("song-test-onclick","song-obj $song")
                 intent.putExtra("song_path", song.file_path)
+                intent.putExtra("song_list", list_all_mp3())
                 startActivity(intent)
             }
 
@@ -139,7 +141,6 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         var song_arr =  lister.get_song_list(root)
         Log.w("root-path","Root path --> ${root.absolutePath}")
         Log.w("song-mp3-list ", song_arr.toString())
-        audio_player.set_song_list(song_arr)
         if(song_arr == null) return ArrayList<String>()
         return song_arr
     }
@@ -164,7 +165,8 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
                         meta_data.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST), BitmapFactory.decodeByteArray(byter, 0, byter.size))
                 song_list.add(data)
                 //Log.d("prepare_data","lhh " + data.toString())
-                if(ct++ % 20 == 19) adapter.notifyDataSetChanged()
+                if(ct++ % 20 == 19) break
+                adapter.notifyDataSetChanged()
             }
 //            }else {
 //                song_list.add(DataSongView(list_item.get("file_name")!!, list_item.get("file_path")!!,

@@ -1,5 +1,7 @@
 package p.ru.musicplayer.utility;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public class Searcher {
@@ -7,6 +9,8 @@ public class Searcher {
         ArrayList<String> slist = new ArrayList<>();
         int index = 0;
         for(String path : list){
+            Log.d("is_substring", "--> " + is_substring(query, path, true));
+            Log.d("is_substring-", "--> itr : " + path  + " , query : " + query);
             if(is_substring(query, path, true)){
                 slist.add(index++, path);
             }

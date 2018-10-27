@@ -11,8 +11,12 @@ import java.io.*;
 public class Mp3Lister{
     String def_song = "/storage/emulated/0/Download/01 Jeene Laga Hoon (Ramaiya Vastavaiya) Atif.mp3";
     ArrayList<String> dirs;
+    ArrayList<String> exclude;
     public Mp3Lister(String... dir){
         dirs = new ArrayList<String>();
+        exclude = new ArrayList<>();
+        exclude.add("Android");
+        exclude.add("MIUI");
         dirs.addAll(Arrays.asList(dir));
     }
     @Nullable
@@ -24,7 +28,7 @@ public class Mp3Lister{
             Log.d("list--mp3", Arrays.toString(files));
             for (File file : files) {
                 if (file.isDirectory()) {
-                    if(contains_in_list(file.getName())){
+                    if(contains_in_list(dirs, file.getName()) && !contains_in_list(exclude, file.getName())){
                         arr.clear();
                         arr.addAll(get_song_list(file));
                         if (get_song_list(file) != null) {
@@ -44,8 +48,8 @@ public class Mp3Lister{
         }
     }
 
-    public boolean contains_in_list(String nam){
-        for(String nm : dirs){
+    public boolean contains_in_list(ArrayList<String> list, String nam){
+        for(String nm : list){
             if(nam.equalsIgnoreCase(nm)) return true;
         }return false;
     }
