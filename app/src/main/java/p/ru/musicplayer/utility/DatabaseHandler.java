@@ -66,6 +66,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @RequiresApi(api = Build.VERSION_CODES.P)
     public DatabaseHandler(@androidx.annotation.Nullable @Nullable Context context, @androidx.annotation.Nullable @Nullable String name, int version, @androidx.annotation.NonNull @NonNull SQLiteDatabase.OpenParams openParams) {
         super(context, name, version, openParams);
+
     }
 
     /**
