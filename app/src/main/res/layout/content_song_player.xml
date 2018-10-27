@@ -8,98 +8,143 @@
     tools:context=".SongPlayer"
     tools:showIn="@layout/activity_song_player">
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="381dp"
+        android:layout_height="326dp">
 
-        <TableRow
-            android:id="@+id/song_info_block"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/song_name_song_player"
-                android:layout_width="372dp"
-                android:layout_height="match_parent"
-                android:text="Tere Sang Yaara"
-                android:textSize="24sp" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/song_img_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <ImageView
-                android:id="@+id/thumbnail_song_player"
-                android:layout_width="340dp"
-                android:layout_height="307dp"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/seek_containter"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <TextView
+            android:id="@+id/song_name_song_player"
+            android:layout_width="354dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="72dp"
-            app:layout_constraintBottom_toTopOf="@+id/buttons_container"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:maxLines="1"
+            android:text="Tere Sang Yaara"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/artist_name_song_player"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/song_img_container"
-            app:layout_constraintVertical_bias="1.0">
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <SeekBar
-                android:id="@+id/seek_to_postion"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </TableRow>
+        <ImageView
+            android:id="@+id/thumbnail_song_player"
+            android:layout_width="373dp"
+            android:layout_height="263dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/artist_name_song_player"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-        <TableRow
-            android:id="@+id/buttons_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <TextView
+            android:id="@+id/artist_name_song_player"
+            android:layout_width="357dp"
+            android:layout_height="17dp"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginBottom="16dp"
+            android:text="TextView"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@+id/thumbnail_song_player"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/song_name_song_player" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="84dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginRight="6dp"
+        android:layout_marginBottom="92dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/prev"
+            android:layout_width="63dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginRight="12dp"
+            app:layout_constraintBottom_toBottomOf="@+id/pause_button"
+            app:layout_constraintEnd_toStartOf="@+id/pause_button"
+            app:layout_constraintTop_toTopOf="@+id/pause_button"
+            app:srcCompat="@drawable/prev" />
+
+        <SeekBar
+            android:id="@+id/seek_to_postion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/pause_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/loop_opt"
+            android:layout_width="33dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/prev"
+            app:layout_constraintEnd_toStartOf="@+id/prev"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/prev"
+            app:srcCompat="@drawable/loop" />
+
+        <ImageView
+            android:id="@+id/fav_opt"
+            android:layout_width="33dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginRight="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/next"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/next"
+            app:srcCompat="@drawable/not_fav" />
+
+        <ImageView
+            android:id="@+id/pause_button"
+            android:layout_width="123dp"
+            android:layout_height="53dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/seek_to_postion"
+            app:srcCompat="@drawable/pause" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/play_button_song_player"
-                    android:layout_width="68dp"
-                    android:layout_height="match_parent"
-                    android:contentDescription="TODO"
-                    app:srcCompat="@drawable/play" />
-
-                <ImageView
-                    android:id="@+id/pause_button_song_player"
-                    android:layout_width="36dp"
-                    android:layout_height="match_parent"
-                    app:srcCompat="@drawable/pause" />
-
-                <ImageView
-                    android:id="@+id/stop_button_song_player"
-                    android:layout_width="48dp"
-                    android:layout_height="match_parent"
-                    android:contentDescription="TODO"
-                    app:srcCompat="@drawable/stop" />
-            </LinearLayout>
-        </TableRow>
-
-    </TableLayout>
+        <ImageView
+            android:id="@+id/next"
+            android:layout_width="63dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/pause_button"
+            app:layout_constraintEnd_toStartOf="@+id/fav_opt"
+            app:layout_constraintStart_toEndOf="@+id/pause_button"
+            app:layout_constraintTop_toTopOf="@+id/pause_button"
+            app:srcCompat="@drawable/next" />
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

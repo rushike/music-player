@@ -11,6 +11,8 @@ public class SeekAnimate implements Runnable {
 
     AudioPlayer player;
 
+    boolean destory = false;
+
     int position = 0;
 
     long position_time = System.currentTimeMillis() / 1000;
@@ -72,10 +74,11 @@ public class SeekAnimate implements Runnable {
 //        }catch (Exception e){
 //            e.printStackTrace();
 //        }
+          if(destory) break;
         }
     }
 
     public void on_destroy(){
-        seek_thread.interrupt();
+        destory = true;
     }
 }

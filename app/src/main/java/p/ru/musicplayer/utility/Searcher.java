@@ -30,4 +30,12 @@ public class Searcher {
         if(ignore_case) return two.toLowerCase().contains(one.toLowerCase());
         return two.contains(one);
     }
+
+    public static int get_index(ArrayList<String> list, String find){
+        for(int i = 0; i < list.size(); i++){
+            if(find.equalsIgnoreCase(list.get(i))){
+                return i;
+            }
+        }return -1;
+    }
 }

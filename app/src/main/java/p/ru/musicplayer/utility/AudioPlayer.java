@@ -22,6 +22,12 @@ public class AudioPlayer {
 
     public Song song = null;
 
+    public int index = 0;
+
+    public boolean notplaying = true;
+
+    public boolean change = false;
+
     public static MediaPlayer player = null;
 
     public AudioPlayer(){
@@ -30,10 +36,7 @@ public class AudioPlayer {
             player.release();
             player = null;
         }
-        player = new MediaPlayer();
         song = new Song();
-        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
     }
 
 
@@ -48,6 +51,11 @@ public class AudioPlayer {
      */
     public AudioPlayer(ArrayList<String> song_list){
         this.song_list = song_list;
+    }
+
+    public boolean change(){
+        change = !change;
+        return change;
     }
 
     public void setPlayer(MediaPlayer player) {
@@ -107,13 +115,23 @@ public class AudioPlayer {
 
     public void pause(){
         if(player != null){
+            notplaying = true;
             player.pause();
         }else Log.e("pause", "player is null");
+    }
+
+    public void pauser(){
+        if(notplaying){
+            start();
+        }else{
+            pause();
+        }
     }
 
     public void start(){
         if(player != null){
             Log.d("media_player_state", "State : " + player.isPlaying());
+            notplaying = false;
             player.start();
             Log.d("media_player_state", "State : " + player.isPlaying());
         }else Log.e("start", "player is null");
@@ -121,12 +139,32 @@ public class AudioPlayer {
 
     public void stop(){
         if(player != null){
+            notplaying = true;
             player.stop();
         }else Log.e("stop", "player is null");
     }
 
+    public String next(){
+        release();
+        index = Searcher.get_index(song_list, path);
+        if(index != -1){
+            index = (index + 1) % song_list.size();
+            return song_list.get(index);
+        }return null;
+    }
+
+    public String prev(){
+        release();
+        index = Searcher.get_index(song_list, path);
+        if(index != -1){
+            index = (index - 1 + song_list.size()) % song_list.size();
+            return song_list.get(index);
+        }return null;
+    }
+
     public  void release(){
         player.release();
+        player = null;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -159,12 +197,16 @@ public class AudioPlayer {
         }else Log.e("pause", "player is null");
     }
 
-    public void load(){
-        if(player != null ){
+    public void load(Context context){
+        if(player == null ){
             try{
+                player = new MediaPlayer();
+                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setDataSource(path);
+                Log.d("load-path", "load: path --> " + path);
                 prepare();
                 start();
+                listners((SongPlayer) context);
             }catch (IOException io){
                 Log.e("init_media_player", "Io Exception due path error");
                 io.printStackTrace();
@@ -172,8 +214,18 @@ public class AudioPlayer {
         }
     }
 
+    public void listners(final SongPlayer sp){
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                change();
+                sp.load(next());
+            }
+        });
+    }
+
     public void setDataSource(){
-        load();
+
     }
 
     public void seek_to(int time){

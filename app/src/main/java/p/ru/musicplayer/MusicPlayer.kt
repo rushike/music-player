@@ -1,6 +1,7 @@
 package p.ru.musicplayer
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.media.MediaMetadataRetriever
@@ -27,6 +28,7 @@ import android.widget.ImageView
 import kotlinx.android.synthetic.main.app_bar_music_player.*
 import kotlinx.android.synthetic.main.content_music_player.*
 import p.ru.musicplayer.utility.AudioPlayer
+import p.ru.musicplayer.utility.PrepareData
 import p.ru.musicplayer.utility.Searcher
 import java.nio.file.Paths
 
@@ -55,7 +57,11 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         tryui.itemAnimator = DefaultItemAnimator()
         tryui.adapter = adapter
         var liss = list_all_mp3()
-        prepare_data(liss)
+        object : Thread("prepare_data"){
+            override fun run() {
+                prepare_data(liss)
+            }
+        }.start()
         var lis : ArrayList<String>
 
 
@@ -137,46 +143,93 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
     fun list_all_mp3() : ArrayList<String> {
         val root : File = Environment.getExternalStorageDirectory()
-        var lister = Mp3Lister("Music", "Download", "SHAREit")
+        var lister = Mp3Lister("Music", "Download", "SHAREit", "Whatsapp")
         var song_arr =  lister.get_song_list(root)
         Log.w("root-path","Root path --> ${root.absolutePath}")
-        Log.w("song-mp3-list ", song_arr.toString())
+        Log.w("song-mp3-list ", "len : ${song_arr?.size} " +song_arr.toString())
         if(song_arr == null) return ArrayList<String>()
         return song_arr
     }
 
     fun prepare_data(list : ArrayList<String>){
-        var file : File
-        var meta_data = MediaMetadataRetriever()
-        var byter : ByteArray?
-        var ct = 0
-        var ctt : Int
-        var file_name : String
-        for(list_item : String in list){
-            meta_data = MediaMetadataRetriever()
-            //Log.d("prepare_data", list_item.toString())
-            meta_data.setDataSource(list_item)
-            byter = meta_data.embeddedPicture
-            if(byter != null){
-                ctt = list_item.lastIndexOf("/")
-                file_name = list_item.substring(ctt + 1)
-                Log.w("path_name_", "fil $file_name")
-                var data = DataSongView(list_item!!, file_name,
-                        meta_data.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST), BitmapFactory.decodeByteArray(byter, 0, byter.size))
-                song_list.add(data)
-                //Log.d("prepare_data","lhh " + data.toString())
-                if(ct++ % 20 == 19) break
-                adapter.notifyDataSetChanged()
-            }
-//            }else {
-//                song_list.add(DataSongView(list_item.get("file_name")!!, list_item.get("file_path")!!,
-//                        meta_data.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST), Bitmap.(imageView.setImageResource(R.drawable.abc_btn_radio_material))))
-//            }
-            meta_data.release()
-        }
-        adapter.notifyDataSetChanged()
+        var file: File
+        var meta_data: MediaMetadataRetriever?
+        var data: DataSongView
+        var byter: ByteArray?
+        var bitm : Bitmap?
+        val ct = 0
+        val ctt: Int
+        val file_name: String
+        var arti : String
 
+        for (list_item : String in list){
+            meta_data = MediaMetadataRetriever()
+            meta_data.setDataSource(list_item)
+            byter = try{
+                meta_data.embeddedPicture
+            }catch (e : java.lang.Exception){
+                e.printStackTrace()
+                null
+            }
+            file = File(list_item)
+            arti = try{
+                meta_data.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            }catch (e : Exception){
+                e.printStackTrace()
+                ""
+            }
+            if (byter != null) {
+                bitm = BitmapFactory.decodeByteArray(byter, 0, byter.size)
+                runOnUiThread {
+                    data = DataSongView(list_item, file.name, arti, bitm)
+                    song_list.add(data)
+                }
+
+            } else {
+                bitm = PrepareData.text_as_bitmap("\u090b\n" + file.name, 20f, 0x0000ef)
+                runOnUiThread(object : Runnable{
+                    override fun run() {
+                        data = DataSongView(list_item, file.name, arti, bitm)
+                        song_list.add(data)
+                    }
+                })
+            }
+        }
+        this.runOnUiThread { adapter.notifyDataSetChanged() }
     }
+
+
+//    fun prepare_data(list : ArrayList<String>){
+//        var file : File
+//        var meta_data = MediaMetadataRetriever()
+//        var byter : ByteArray?
+//        var ct = 0
+//        var ctt : Int
+//        var file_name : String
+//        for(list_item : String in list){
+//            meta_data = MediaMetadataRetriever()
+//            //Log.d("prepare_data", list_item.toString())
+//            meta_data.setDataSource(list_item)
+//            byter = meta_data.embeddedPicture
+//            if(byter != null){
+//                ctt = list_item.lastIndexOf("/")
+//                file_name = list_item.substring(ctt + 1)
+//                Log.w("path_name_", "fil $file_name")
+//                var data = DataSongView(list_item!!, file_name,
+//                        meta_data.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST), BitmapFactory.decodeByteArray(byter, 0, byter.size))
+//                song_list.add(data)
+//                //Log.d("prepare_data","lhh " + data.toString())
+//                if(ct++ % 20 == 19) adapter.notifyDataSetChanged()
+//            }
+////            }else {
+////                song_list.add(DataSongView(list_item.get("file_name")!!, list_item.get("file_path")!!,
+////                        meta_data.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST), Bitmap.(imageView.setImageResource(R.drawable.abc_btn_radio_material))))
+////            }
+//            meta_data.release()
+//        }
+//        adapter.notifyDataSetChanged()
+//
+//    }
 
     private fun dpToPx(dp: Int): Int {
         val r = resources

@@ -17,6 +17,7 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_song_player.*
 import kotlinx.android.synthetic.main.content_song_player.*
 import p.ru.musicplayer.utility.AudioPlayer
+import p.ru.musicplayer.utility.PrepareData
 import p.ru.musicplayer.utility.SeekAnimate
 import java.io.File
 
@@ -49,17 +50,22 @@ class SongPlayer(var sk : SeekAnimate?) : AppCompatActivity() {
         Log.d("playing-from", "--> $song_path")
         load(song_path)
 
-        stop_button_song_player.setOnClickListener{
-            player.pause()
-        }
-        play_button_song_player.setOnClickListener{
-            player.start()
-        }
-
-        pause_button_song_player.setOnClickListener{
-            player.pause()
+        pause_button.setOnClickListener{
+            player.pauser()
+            if(player.notplaying){
+                findViewById<ImageView>(R.id.pause_button).setImageResource(R.drawable.play)
+            }else  findViewById<ImageView>(R.id.pause_button).setImageResource(R.drawable.pause)
         }
 
+        prev.setOnClickListener{
+            player.change()
+            load(player.prev())
+        }
+
+        next.setOnClickListener{
+            player.change()
+            load(player.next())
+        }
     }
 
     fun load(song_path : String){
@@ -75,22 +81,26 @@ class SongPlayer(var sk : SeekAnimate?) : AppCompatActivity() {
 
 
         val data = mmt.embeddedPicture
-        val img : Bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
+        val img : Bitmap
+        if(data != null) img  = BitmapFactory.decodeByteArray(data, 0, data.size)
+        else img = PrepareData.text_as_bitmap("\u090b", 80F, 0x00e0ff)
 
         findViewById<ImageView>(R.id.thumbnail_song_player).setImageBitmap(Bitmap.createScaledBitmap(img, 400, 400, false))
         findViewById<TextView>(R.id.song_name_song_player).setText(song.song_name)
         findViewById<SeekBar>(R.id.seek_to_postion).max = song.duration
+        findViewById<TextView>(R.id.artist_name_song_player).setText(song.artist)
 
         animate_seek_bar(0)
 
-        if(sk != null){
+        if(sk != null && player.change){
             (sk as SeekAnimate).on_destroy()
             sk = null
+            player.change()
         }
         sk  = SeekAnimate(findViewById<SeekBar>(R.id.seek_to_postion), player)
         player.set_song(song)
         player.set_path(song_path)
-        player.load()
+        player.load(this)
     }
 
     /**
