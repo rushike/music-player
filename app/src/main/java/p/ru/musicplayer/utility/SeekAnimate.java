@@ -13,9 +13,19 @@ public class SeekAnimate implements Runnable {
 
     boolean destory = false;
 
+    boolean pp = true;
+
+    boolean iff = true;
+
     int position = 0;
 
     long position_time = System.currentTimeMillis() / 1000;
+
+    long pause_time = 0;
+
+    long pp_time = 0;
+
+    long ptime = 0;
 
     public SeekAnimate(SeekBar seek_bar, AudioPlayer player){
         seek_thread = new Thread(this);
@@ -68,7 +78,20 @@ public class SeekAnimate implements Runnable {
         Log.d("seek_bar_pos", "Pos Cal--> " + (int)(position + (System.currentTimeMillis() / 1000 - position_time)));
 
         while(true) {
-            seek_bar.setProgress((int) (position + (System.currentTimeMillis() / 1000 - position_time)));
+            if(!player.notplaying() ){
+                if(pp){
+                    pause_time += pp_time;
+                    pp = false;
+                }
+                ptime = System.currentTimeMillis() / 1000;
+                seek_bar.setProgress((int) (position + (ptime  - position_time - pause_time)));
+            }
+            else if(iff){
+                iff = false;
+                pp = true;
+                pp_time = System.currentTimeMillis()/1000 - ptime;
+            }
+
 //        try {
 //            seek_thread.wait(200);
 //        }catch (Exception e){

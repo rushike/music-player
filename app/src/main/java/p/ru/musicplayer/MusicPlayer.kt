@@ -19,7 +19,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import kotlinx.android.synthetic.main.activity_music_player.*
-import p.ru.musicplayer.utility.Mp3Lister
 import java.io.File
 import android.util.TypedValue
 import android.support.v7.widget.DefaultItemAnimator
@@ -27,9 +26,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import kotlinx.android.synthetic.main.app_bar_music_player.*
 import kotlinx.android.synthetic.main.content_music_player.*
-import p.ru.musicplayer.utility.AudioPlayer
-import p.ru.musicplayer.utility.PrepareData
-import p.ru.musicplayer.utility.Searcher
+import p.ru.musicplayer.utility.*
 import java.nio.file.Paths
 
 
@@ -37,6 +34,9 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
     private var song_list : ArrayList<DataSongView> = ArrayList()
     private  var adapter : SongAdapter = SongAdapter(this, song_list)
+    private var liss : ArrayList<String> = ArrayList()
+
+    private var dbh = DatabaseHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +47,7 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 //        drawer_layout.addDrawerListener(toggle)
 //        toggle.syncState()
 
-//        nav_view.setNavigationItemSelectedListener(this)
+        nav_view.setNavigationItemSelectedListener(this)
 
         adapter = SongAdapter(this, song_list)
         var m_layout_manager : RecyclerView.LayoutManager = GridLayoutManager(this, 2) as RecyclerView.LayoutManager
@@ -56,7 +56,26 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         tryui.addItemDecoration(GridSpacingItemDecoration(2, dpToPx(10), true))
         tryui.itemAnimator = DefaultItemAnimator()
         tryui.adapter = adapter
-        var liss = list_all_mp3()
+
+        var bundle = intent.extras
+        try {
+            var nav_sel = bundle!!.getString("nav_sel")
+
+            if (nav_sel != null) {
+                if (nav_sel.equals("recent")) {
+                    liss = bundle.getStringArrayList("recent_list")!!
+                    if (liss == null) liss = list_all_mp3()
+                } else if (nav_sel.equals("fav")) {
+                    liss = bundle.getStringArrayList("fav_list")!!
+                    if (liss == null) liss = list_all_mp3()
+                } else liss = list_all_mp3()
+            } else liss = list_all_mp3()
+        }catch (e : java.lang.Exception){
+            e.printStackTrace()
+            Log.e("err_bundle_null", e.toString())
+            liss = list_all_mp3()
+        }
+
         object : Thread("prepare_data"){
             override fun run() {
                 prepare_data(liss)
@@ -79,7 +98,7 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
                 var song = song_list.get(position)
                 Log.w("song-test-onclick","song-obj $song")
                 intent.putExtra("song_path", song.file_path)
-                intent.putExtra("song_list", list_all_mp3())
+                intent.putExtra("song_list", liss)
                 startActivity(intent)
             }
 
@@ -115,25 +134,26 @@ class MusicPlayer : AppCompatActivity(), NavigationView.OnNavigationItemSelected
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
+        var intent = Intent(this, MusicPlayer::class.java)
+        drawer_layout.closeDrawer(GravityCompat.START)
         when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
-            }
-            R.id.nav_gallery -> {
+            R.id.nav_creat_playlist -> {
 
             }
-            R.id.nav_slideshow -> {
-
+            R.id.nav_recent_played -> {
+                intent.putExtra("nav_sel", "recent")
+                intent.putExtra("recent_list", dbh.str_recent(dbh._all_recent_songs))
+                startActivity(intent)
             }
-            R.id.nav_manage -> {
-
+            R.id.nav_recomend -> {
+                intent.putExtra("nav_sel", "recent")
+                intent.putExtra("recent_list", dbh.str_recent(dbh._all_recent_songs))
+                startActivity(intent)
             }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
+            R.id.nav_liked -> {
+                intent.putExtra("nav_sel", "fav")
+                intent.putExtra("fav_list", dbh.str_fav(dbh._all_favourite_songs))
+                startActivity(intent)
             }
         }
 

@@ -1,4 +1,4 @@
-package p.ru.musicplayer
+package p.ru.musicplayer.models
 
 class Song(var song_name : String? = null, var song_path : String? = null, var artist : String? = null, var album : String? = null, var duration : Int = 0, var current_position : Int = 0, var favourite : Boolean = false, var loop : Boolean) {
 

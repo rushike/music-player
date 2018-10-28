@@ -12,7 +12,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import p.ru.musicplayer.Song;
+import p.ru.musicplayer.models.Song;
 import p.ru.musicplayer.SongPlayer;
 
 public class AudioPlayer {
@@ -24,11 +24,15 @@ public class AudioPlayer {
 
     public int index = 0;
 
-    public boolean notplaying = true;
+    public boolean notplaying = false;
 
     public boolean change = false;
 
+    private boolean looping = false;
+
+
     public static MediaPlayer player = null;
+
 
     public AudioPlayer(){
         song_list = new ArrayList<>();
@@ -56,6 +60,24 @@ public class AudioPlayer {
     public boolean change(){
         change = !change;
         return change;
+    }
+
+    public void set_looping(boolean looping){
+        this.looping = looping;
+    }
+
+    public boolean looping() {
+        looping = !looping;
+        return looping;
+    }
+
+    public boolean favourite(){
+        song.setFavourite(!song.getFavourite());
+        return song.getFavourite();
+    }
+
+    public boolean notplaying() {
+        return notplaying;
     }
 
     public void setPlayer(MediaPlayer player) {
@@ -110,7 +132,9 @@ public class AudioPlayer {
     public int getVideoHeight(){return 0;}
     public int getVideoWidth(){return  0;}
     public void setAudioAttributes(AudioAttributes attributes){}
-    public void setLooping(boolean looping){}
+    public void setLooping(boolean looping){
+        player.setLooping(looping);
+    }
     public void setVolume(float x1, float x2){}
 
     public void pause(){
@@ -146,20 +170,25 @@ public class AudioPlayer {
 
     public String next(){
         release();
-        index = Searcher.get_index(song_list, path);
-        if(index != -1){
-            index = (index + 1) % song_list.size();
-            return song_list.get(index);
-        }return null;
+        if(!looping){
+            index = Searcher.get_index(song_list, path);
+            if(index != -1){
+                index = (index + 1) % song_list.size();
+                return song_list.get(index);
+            }return null;
+        }else return path;
     }
 
     public String prev(){
         release();
-        index = Searcher.get_index(song_list, path);
-        if(index != -1){
-            index = (index - 1 + song_list.size()) % song_list.size();
-            return song_list.get(index);
-        }return null;
+        if(!looping) {
+            index = Searcher.get_index(song_list, path);
+            if (index != -1) {
+                index = (index - 1 + song_list.size()) % song_list.size();
+                return song_list.get(index);
+            }
+            return null;
+        }else return path;
     }
 
     public  void release(){
@@ -197,7 +226,7 @@ public class AudioPlayer {
         }else Log.e("pause", "player is null");
     }
 
-    public void load(Context context){
+    public void load(SongPlayer context){
         if(player == null ){
             try{
                 player = new MediaPlayer();
@@ -206,7 +235,16 @@ public class AudioPlayer {
                 Log.d("load-path", "load: path --> " + path);
                 prepare();
                 start();
-                listners((SongPlayer) context);
+                if(context.getDbh().contains_in_recent(path)){
+                    context.getDbh().delete_recent_song_by_id(path);
+                    context.getDbh().insert_recent(path);
+                }else context.getDbh().insert_recent(path);
+                if(context.getDbh().get_recent_songs_count() > 50) {
+                    context.getDbh().delete_old_song_by_id();
+                    Log.d("recent-list", "" + context.getDbh().get_all_recent_songs());
+                }
+                Log.d("recent-list", "" + context.getDbh().get_all_recent_songs());
+                listners(context);
             }catch (IOException io){
                 Log.e("init_media_player", "Io Exception due path error");
                 io.printStackTrace();
@@ -219,6 +257,7 @@ public class AudioPlayer {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 change();
+                Log.d("listners-loop", "onCompletion: loop : " + looping);
                 sp.load(next());
             }
         });
